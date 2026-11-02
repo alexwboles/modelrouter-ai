@@ -194,7 +194,7 @@ class ProxyTestCase(unittest.TestCase):
                          "upstream_error:500")
 
     def test_cascade_both_fail_returns_502_without_secret(self):
-        secret = "sk-livedsecret999"
+        secret = "sk-faketestsecret999"
         self.ollama.script("local-fast", [{"status": 500, "error": "down"}])
         self.openai.script("api-strong",
                            [{"status": 500, "error": f"key {secret} leaked"}])
