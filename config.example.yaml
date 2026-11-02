@@ -1,0 +1,82 @@
+# modelrouter-ai example config.
+# Copy to modelrouter.yaml and edit. API keys are NEVER written here:
+# key_env names an environment variable, and the router reads the key
+# from the environment at request time.
+#
+# Prices are USD per 1M tokens. Local models are 0.0. Edit freely;
+# `modelrouter costs` uses exactly these numbers.
+
+models:
+  # Local model via Ollama's OpenAI-compatible endpoint. No key needed.
+  - id: qwen3-local
+    endpoint: http://localhost:11434/v1
+    key_env: ""
+    input_price: 0.0
+    output_price: 0.0
+    context_window: 32768
+
+  # Cheap API model. Set OPENAI_API_KEY (or your provider's key) in the
+  # environment before starting the router.
+  - id: gpt-cheap
+    endpoint: https://api.openai.com/v1
+    key_env: OPENAI_API_KEY
+    input_price: 0.15
+    output_price: 0.60
+    context_window: 128000
+
+  # Strong API model for escalation and critique.
+  - id: gpt-strong
+    endpoint: https://api.openai.com/v1
+    key_env: OPENAI_API_KEY
+    input_price: 2.00
+    output_price: 8.00
+    context_window: 200000
+
+# Routing tiers. Roles name model ids; effort levels below may override
+# individual roles without changing the pattern.
+tiers:
+  single:
+    model: qwen3-local
+  cascade:
+    draft: qwen3-local
+    strong: gpt-cheap
+    min_length: 40
+    # refusal_patterns:   # optional override of the built-in list
+    #   - "i can't"
+  critique:
+    primary: gpt-cheap
+    critic: gpt-strong
+    threshold: 7
+    max_rounds: 2
+
+# Effort levels. Each level overrides tier roles; anything not listed
+# keeps the tier default above. low = cheapest, high = strongest.
+effort:
+  default: medium
+  low:
+    single:
+      model: qwen3-local
+    cascade:
+      draft: qwen3-local
+      strong: qwen3-local
+    critique:
+      primary: qwen3-local
+      critic: qwen3-local
+  medium: {}
+  high:
+    single:
+      model: gpt-strong
+    cascade:
+      draft: gpt-cheap
+      strong: gpt-strong
+    critique:
+      primary: gpt-strong
+      critic: gpt-strong
+
+policies:
+  default_tier: cascade
+  request_timeout: 120
+  budget:
+    daily_usd: 5.0
+    warn_fraction: 0.8
+    stop_fraction: 1.0
