@@ -53,9 +53,19 @@ python -m modelrouter route --explain "write a function that adds two numbers" \
 
 # 5. See what was spent
 python -m modelrouter costs
+python -m modelrouter costs --html > costs.html   # styled report, same data
 ```
 
 Or install it: `pip install .` then use the `modelrouter` command.
+
+## Dashboard
+
+While the proxy runs, open http://127.0.0.1:4000/ for a live
+dashboard: today's requests, tokens, and spend; the budget bar with
+warn/stop markers; every configured model with its tier roles; the
+last routing decisions (model, tier, escalation reason, cost — never
+prompt text, never keys); and a copy-paste agent-setup snippet. See
+`docs/UI-AUDIT.md` for the competitor research behind it.
 
 ## One full example
 

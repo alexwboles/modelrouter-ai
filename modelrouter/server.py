@@ -206,27 +206,11 @@ def make_handler(router: Router, config, tracker):
             self.wfile.write(payload)
 
         def _send_status_page(self):
-            rows = "".join(
-                f"<tr><td>{m.id}</td><td>{m.endpoint}</td>"
-                f"<td>{'key set' if m.api_key() else 'no key / local'}</td>"
-                f"<td>${m.input_price:.2f} / ${m.output_price:.2f} per 1M</td></tr>"
-                for m in config.models.values()
-            )
-            uptime = int(time.time() - _STARTED)
-            html = f"""<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>modelrouter status</title>
-<style>
-body {{ font-family: system-ui, sans-serif; margin: 40px; color: #1a1a1a; }}
-table {{ border-collapse: collapse; }}
-td, th {{ border: 1px solid #ccc; padding: 8px 12px; text-align: left; }}
-h1 {{ font-size: 22px; }}
-</style></head><body>
-<h1>modelrouter is running</h1>
-<p>Uptime: {uptime}s &middot; Spent today: ${tracker.spent_today():.4f}</p>
-<table><tr><th>Model</th><th>Endpoint</th><th>Auth</th><th>In / out price</th></tr>
-{rows}</table>
-<p>OpenAI-compatible endpoint: <code>POST /v1/chat/completions</code></p>
-</body></html>"""
+            from . import dashboard
+            host = self.headers.get("Host") or "127.0.0.1:4000"
+            html = dashboard.render_status_page(
+                config, tracker, time.time() - _STARTED, router.log_path,
+                f"http://{host}")
             body = html.encode()
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")

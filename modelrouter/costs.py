@@ -155,3 +155,11 @@ class CostTracker:
             "by_model": self.state["by_model"],
             "by_project": self.state["by_project"],
         }
+
+    def html_report(self, days=None, cap=None, warn_fraction: float = 0.8,
+                    stop_fraction: float = 1.0) -> str:
+        """Styled HTML report in the dashboard's design language."""
+        from . import dashboard
+        return dashboard.render_cost_report(
+            self.state, days=days, cap=cap,
+            warn_fraction=warn_fraction, stop_fraction=stop_fraction)

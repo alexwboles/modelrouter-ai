@@ -16,6 +16,8 @@ python3 -m modelrouter --config config.example.yaml route \
   --explain "write a function that adds two numbers" --tier cascade > /dev/null
 python3 -m modelrouter --config config.example.yaml --data-dir /tmp/mr-smoke-data \
   costs > /dev/null
+python3 -m modelrouter --config config.example.yaml --data-dir /tmp/mr-smoke-data \
+  costs --html > /dev/null
 rm -rf /tmp/mr-smoke-data
 
 echo "SMOKE OK"

@@ -69,9 +69,15 @@ def _cmd_route(args):
 
 
 def _cmd_costs(args):
-    _config, tracker, _router, _data = _build(args)
+    config, tracker, _router, _data = _build(args)
     if args.json:
         print(json.dumps(tracker.json_report(), indent=2, sort_keys=True))
+    elif args.html:
+        cap = config.policies.budget.daily_usd
+        print(tracker.html_report(
+            days=args.days, cap=cap,
+            warn_fraction=config.policies.budget.warn_fraction,
+            stop_fraction=config.policies.budget.stop_fraction))
     else:
         print(tracker.markdown_report(days=args.days))
     return 0
@@ -109,6 +115,8 @@ def main(argv=None) -> int:
 
     costs = sub.add_parser("costs", help="spend report from recorded usage")
     costs.add_argument("--json", action="store_true", help="JSON instead of Markdown")
+    costs.add_argument("--html", action="store_true",
+                       help="styled HTML report instead of Markdown")
     costs.add_argument("--days", type=int, default=None,
                        help="limit the by-day table to the last N days")
     costs.set_defaults(func=_cmd_costs)
